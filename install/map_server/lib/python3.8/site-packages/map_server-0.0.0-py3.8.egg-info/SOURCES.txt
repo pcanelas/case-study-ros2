@@ -16,6 +16,8 @@ maps/map_keepout.pgm
 maps/map_keepout.png
 maps/map_keepout.yaml
 maps/map_keepout2.pgm
+maps/map_keepout3.pgm
+maps/map_keepout4.pgm
 maps/map_rotated.pgm
 maps/map_rotated.png
 maps/map_rotated2.pgm

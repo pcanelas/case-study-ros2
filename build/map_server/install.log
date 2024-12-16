@@ -5,6 +5,7 @@
 /home/user/ros2_ws/install/map_server/share/map_server/launch/nav2_map_server.launch.py
 /home/user/ros2_ws/install/map_server/share/map_server/rviz_config
 /home/user/ros2_ws/install/map_server/share/map_server/maps/map_speeds.yaml
+/home/user/ros2_ws/install/map_server/share/map_server/maps/map_keepout4.pgm
 /home/user/ros2_ws/install/map_server/share/map_server/maps/map_keepout2.pgm
 /home/user/ros2_ws/install/map_server/share/map_server/maps/neobotix_area.pgm
 /home/user/ros2_ws/install/map_server/share/map_server/maps/map_keepout.pgm
@@ -13,6 +14,7 @@
 /home/user/ros2_ws/install/map_server/share/map_server/maps/map.pgm
 /home/user/ros2_ws/install/map_server/share/map_server/maps/map_rotated.pgm
 /home/user/ros2_ws/install/map_server/share/map_server/maps/map_speeds.pgm
+/home/user/ros2_ws/install/map_server/share/map_server/maps/map_keepout3.pgm
 /home/user/ros2_ws/install/map_server/share/map_server/maps/map_rotated2.pgm
 /home/user/ros2_ws/install/map_server/share/map_server/maps/map.yaml
 /home/user/ros2_ws/install/map_server/share/map_server/maps/map_keepout.yaml

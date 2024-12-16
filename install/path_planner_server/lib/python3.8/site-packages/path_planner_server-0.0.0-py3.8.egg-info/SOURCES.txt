@@ -15,8 +15,6 @@ config/planner_server.yaml
 config/recovery.yaml
 config/waypoint_follower.yaml
 launch/navigation.launch.py
-launch/navigation2.launch.py
-launch/navigation3.launch.py
 launch/pathplanner.launch.py
 path_planner_server/__init__.py
 resource/path_planner_server

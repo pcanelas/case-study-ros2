@@ -1,0 +1,20 @@
+[1.888s] Invoking command in '/home/user/ros2_ws/src/nav2_pkgs/map_server': PYTHONPATH=/home/user/ros2_ws/install/map_server/lib/python3.8/site-packages:${PYTHONPATH} _=/usr/bin/env /usr/bin/python3 setup.py egg_info --egg-base ../../../build/map_server build --build-base /home/user/ros2_ws/build/map_server/build install --prefix /home/user/ros2_ws/install/map_server --record /home/user/ros2_ws/build/map_server/install.log --single-version-externally-managed
+[2.368s] running egg_info
+[2.368s] writing ../../../build/map_server/map_server.egg-info/PKG-INFO
+[2.369s] writing dependency_links to ../../../build/map_server/map_server.egg-info/dependency_links.txt
+[2.369s] writing entry points to ../../../build/map_server/map_server.egg-info/entry_points.txt
+[2.369s] writing requirements to ../../../build/map_server/map_server.egg-info/requires.txt
+[2.369s] writing top-level names to ../../../build/map_server/map_server.egg-info/top_level.txt
+[2.470s] reading manifest file '../../../build/map_server/map_server.egg-info/SOURCES.txt'
+[2.472s] writing manifest file '../../../build/map_server/map_server.egg-info/SOURCES.txt'
+[2.472s] running build
+[2.472s] running build_py
+[2.472s] running install
+[2.473s] running install_lib
+[2.475s] running install_data
+[2.477s] running install_egg_info
+[2.479s] removing '/home/user/ros2_ws/install/map_server/lib/python3.8/site-packages/map_server-0.0.0-py3.8.egg-info' (and everything under it)
+[2.479s] Copying ../../../build/map_server/map_server.egg-info to /home/user/ros2_ws/install/map_server/lib/python3.8/site-packages/map_server-0.0.0-py3.8.egg-info
+[2.481s] running install_scripts
+[2.506s] writing list of installed files to '/home/user/ros2_ws/build/map_server/install.log'
+[2.594s] Invoked command in '/home/user/ros2_ws/src/nav2_pkgs/map_server' returned '0': PYTHONPATH=/home/user/ros2_ws/install/map_server/lib/python3.8/site-packages:${PYTHONPATH} _=/usr/bin/env /usr/bin/python3 setup.py egg_info --egg-base ../../../build/map_server build --build-base /home/user/ros2_ws/build/map_server/build install --prefix /home/user/ros2_ws/install/map_server --record /home/user/ros2_ws/build/map_server/install.log --single-version-externally-managed

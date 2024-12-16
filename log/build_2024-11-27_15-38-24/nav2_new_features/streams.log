@@ -1,0 +1,33 @@
+[2.201s] Invoking command in '/home/user/ros2_ws/src/nav2_new_features/nav2_new_features': PYTHONPATH=/home/user/ros2_ws/install/nav2_new_features/lib/python3.8/site-packages:${PYTHONPATH} _=/usr/bin/env /usr/bin/python3 setup.py egg_info --egg-base ../../../build/nav2_new_features build --build-base /home/user/ros2_ws/build/nav2_new_features/build install --prefix /home/user/ros2_ws/install/nav2_new_features --record /home/user/ros2_ws/build/nav2_new_features/install.log --single-version-externally-managed
+[2.857s] running egg_info
+[2.857s] creating ../../../build/nav2_new_features/nav2_new_features.egg-info
+[2.858s] writing ../../../build/nav2_new_features/nav2_new_features.egg-info/PKG-INFO
+[2.859s] writing dependency_links to ../../../build/nav2_new_features/nav2_new_features.egg-info/dependency_links.txt
+[2.859s] writing entry points to ../../../build/nav2_new_features/nav2_new_features.egg-info/entry_points.txt
+[2.860s] writing requirements to ../../../build/nav2_new_features/nav2_new_features.egg-info/requires.txt
+[2.860s] writing top-level names to ../../../build/nav2_new_features/nav2_new_features.egg-info/top_level.txt
+[2.862s] writing manifest file '../../../build/nav2_new_features/nav2_new_features.egg-info/SOURCES.txt'
+[2.959s] reading manifest file '../../../build/nav2_new_features/nav2_new_features.egg-info/SOURCES.txt'
+[2.961s] writing manifest file '../../../build/nav2_new_features/nav2_new_features.egg-info/SOURCES.txt'
+[2.961s] running build
+[2.962s] running build_py
+[2.962s] creating /home/user/ros2_ws/build/nav2_new_features/build
+[2.962s] creating /home/user/ros2_ws/build/nav2_new_features/build/lib
+[2.963s] creating /home/user/ros2_ws/build/nav2_new_features/build/lib/nav2_new_features
+[2.963s] copying nav2_new_features/__init__.py -> /home/user/ros2_ws/build/nav2_new_features/build/lib/nav2_new_features
+[2.963s] running install
+[2.964s] running install_lib
+[2.965s] creating /home/user/ros2_ws/install/nav2_new_features/lib/python3.8/site-packages/nav2_new_features
+[2.965s] copying /home/user/ros2_ws/build/nav2_new_features/build/lib/nav2_new_features/__init__.py -> /home/user/ros2_ws/install/nav2_new_features/lib/python3.8/site-packages/nav2_new_features
+[2.966s] byte-compiling /home/user/ros2_ws/install/nav2_new_features/lib/python3.8/site-packages/nav2_new_features/__init__.py to __init__.cpython-38.pyc
+[2.968s] running install_data
+[2.968s] creating /home/user/ros2_ws/install/nav2_new_features/share/ament_index
+[2.968s] creating /home/user/ros2_ws/install/nav2_new_features/share/ament_index/resource_index
+[2.968s] creating /home/user/ros2_ws/install/nav2_new_features/share/ament_index/resource_index/packages
+[2.968s] copying resource/nav2_new_features -> /home/user/ros2_ws/install/nav2_new_features/share/ament_index/resource_index/packages
+[2.969s] copying package.xml -> /home/user/ros2_ws/install/nav2_new_features/share/nav2_new_features
+[2.969s] running install_egg_info
+[2.971s] Copying ../../../build/nav2_new_features/nav2_new_features.egg-info to /home/user/ros2_ws/install/nav2_new_features/lib/python3.8/site-packages/nav2_new_features-0.0.0-py3.8.egg-info
+[2.972s] running install_scripts
+[3.046s] writing list of installed files to '/home/user/ros2_ws/build/nav2_new_features/install.log'
+[3.090s] Invoked command in '/home/user/ros2_ws/src/nav2_new_features/nav2_new_features' returned '0': PYTHONPATH=/home/user/ros2_ws/install/nav2_new_features/lib/python3.8/site-packages:${PYTHONPATH} _=/usr/bin/env /usr/bin/python3 setup.py egg_info --egg-base ../../../build/nav2_new_features build --build-base /home/user/ros2_ws/build/nav2_new_features/build install --prefix /home/user/ros2_ws/install/nav2_new_features --record /home/user/ros2_ws/build/nav2_new_features/install.log --single-version-externally-managed
