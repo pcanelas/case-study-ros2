@@ -1,0 +1,514 @@
+policy type qos {
+
+    optional param history: Enum[KeepLast, KeepAll] = KeepLast;
+    optional param depth: int = 5;
+    optional param reliability: Enum[Reliable, BestEffort] = Reliable;
+    optional param durability: Enum[TransientLocal, Volatile] = Volatile;
+    optional param deadline: float = 0.0;
+    optional param lifespan: float = 0.0;
+    optional param liveliness: Enum[Automatic, ManualByTopic] = Automatic;
+    optional param duration: float = 0.0;
+
+	attach to {
+    	publishes to,
+        subscribes to,
+    };
+
+    external verify "../policy_verifiers/QoSVerifier.py";
+}
+
+policy instance transient_reliable_qos : qos {
+    param history     = KeepLast;
+    param depth       = 1;
+    param reliability = Reliable;
+    param durability  = TransientLocal;
+}
+
+policy instance sensor_data : qos {
+    param history     = KeepLast;
+    param depth  	  = 1;
+    param reliability = BestEffort;
+    param durability  = Volatile;
+}
+
+policy instance map_server_topic_qos : qos {
+    param history     = KeepLast;
+    param depth  	  = 1;
+    param reliability = Reliable;
+    param durability  = TransientLocal;
+}
+
+policy instance costmap_server_info_qos : qos {
+    param history     = KeepLast;
+    param depth  		= 1;
+    param reliability = Reliable;
+    param durability  = TransientLocal;
+}
+
+policy instance speed_limit_qos : qos {
+	param depth = 10;
+}
+
+policy instance sensor_data_profile : qos {
+    param history     = KeepLast;
+    param depth  	  = 5;
+    param reliability = BestEffort;
+    param durability  = Volatile;
+    param deadline = 0;
+    param lifespan = 0;
+    param liveliness = Automatic; # TODO: https://docs.ros2.org/foxy/api/rmw/types_8h.html#a06f5b0c75030154a0e277e08208f28e1
+    param duration = 0;
+}
+
+policy instance system_default_qos : qos {}
+
+type alias AfterHumbleVersion: OrderedEnum[Ardent, Bouncy, Crystal, Dashing, Eloquent, Foxy, Galactic, Humble, Iron, Jazzy, Kilted] where {_ >= Humble};
+type alias BeforeJazzyVersion: OrderedEnum[Ardent, Bouncy, Crystal, Dashing, Eloquent, Foxy, Galactic, Humble, Iron, Jazzy, Kilted] where {_ <= Jazzy};
+
+type alias Natural : double where {_ >= 0};
+type alias Nanosecond : Natural;
+type alias Second : Natural;
+type alias Radian : float32;
+type alias Meter : float32;
+
+message alias RestrictedLaserScan from sensor_msgs/LaserScan {
+	field angle_min : Radian;
+    field angle_max : Radian;
+    field angle_increment : Radian;
+    field time_increment : Second;
+    field scan_time : Natural;
+    field range_min : Meter;
+    field range_max : Meter;
+    field ranges : float32[];
+    field intensities : float32[];
+} where {
+	angle_min < angle_max;
+    range_min < range_max;
+}
+
+message alias RestrictedLoadMap from nav_msgs/LoadMap {
+	response field result: uint8 where {(_ >= 0 and _ <= 3) or _ == 255};
+}
+
+node type amcl_type {
+    context distribution : AfterHumbleVersion;
+
+    param robot_model_type: Enum[DifferentialMotionModel, OmniMotionModel];
+	param scan_topic_name: TopicNameType;
+    param map_topic_name: TopicNameType;
+
+	optional param alpha1: double = 0.2;
+	optional param alpha2: double = 0.2;
+	optional param alpha3: double = 0.2;
+	optional param alpha4: double = 0.2;
+	optional param alpha5: double = 0.2;
+    optional param base_frame_id: string = "base_footprint";
+    optional param beam_skip_distance: Natural = 0.5;
+    optional param beam_skip_error_threshold: double = 0.9;
+    optional param beam_skip_threshold: double = 0.3;
+    optional param do_beamskip: bool = false;
+    optional param global_frame_id: string = "map";
+    optional param lambda_short: double = 0.1;
+    optional param laser_likelihood_max_dist: double = 2.0;
+    optional param laser_max_range: double where {_ >= 0.0 or _ == -1.0} = 100.0;
+    optional param laser_min_range: double where {_ >= 0.0 or _ == -1.0} = -1.0;
+	optional param laser_model_type: Enum[Beam, LikelihoodField, LikelihoodFieldProb] = LikelihoodField;
+    optional param set_initial_pose: bool = false;
+    optional param initial_pose: geometry_msgs/Pose2D = {
+    	x: double = 0.0,
+        y: double = 0.0,
+        z: double = 0.0,
+        yaw: double = 0.0,
+    };
+	optional param max_beams: int = 60;
+	optional param max_particles: int = 2000;
+    optional param min_particles: int = 500;
+    optional param odom_frame_id: string = "odom";
+    optional param pf_err: double = 0.05;
+    optional param pf_z: double = 0.99;
+    optional param recovery_alpha_fast: double = 0.0;
+    optional param recovery_alpha_slow: double = 0.0;
+    optional param resample_interval: Natural = 1;
+	optional param save_pose_rate: Natural = 0.5;
+    optional param sigma_hit: double = 0.2;
+    optional param tf_broadcast: bool = true;
+    optional param transform_tolerance: double = 1.0;
+    optional param update_min_a: double = 0.2;
+    optional param update_min_d: double = 0.25;
+    optional param z_hit: double = 0.5;
+    optional param z_max: double = 0.05;
+    optional param z_rand: double = 0.5;
+    optional param z_short: double = 0.005;
+    optional param always_reset_initial_pose: bool = false;
+    optional param first_map_only: string = false;
+    optional param bond_heartbeat_period: double = 0.1;
+
+    @qos{sensor_data}
+    publishes to particle_cloud : nav2_msgs/ParticleCloud;
+
+    @qos{transient_reliable_qos}
+    publishes to amcl_pose;
+
+    @qos{sensor_data_profile}
+    subscribes to content(scan_topic_name) : RestrictedLaserScan where {count(publishers(scan_topic_name)) > 0};
+
+    @qos{system_default_qos}
+    subscribes to initialpose : geometry_msgs/PoseWithCovarianceStamped;
+
+    @qos{transient_reliable_qos}
+    subscribes to content(map_topic_name) : nav_msgs/OccupancyGrid where {count(publishers(scan_topic_name)) > 0};
+
+    provides service reinitialize_global_localization;
+    provides service set_initial_pose;
+    provides service request_nomotion_srv;
+
+    broadcast map to odom;
+    broadcast odom to base_link;
+    broadcast base_link to scan;
+} where {
+	laser_min_range <= laser_max_range;
+    min_particles <= max_particles;
+    laser_mode_type == Beam -> z_hit + z_max + z_rand + z_short == 1;
+    laser_mode_type == LikelihoodField -> z_hit + z_rand == 1;
+	always_reset_initial_pose -> exists(initial_pose);
+}
+
+node type controller_server_kilted {
+	context distribution: BeforeJazzyVersion;
+
+    param odom_topic: Topic;
+
+    optional param speed_limit_topic: Topic = "speed_limit";
+	optional param controller_frequency: Natural = 20.0;
+    optional param use_realtime_priority: bool = false;
+    optional param publish_zero_velocity: bool = false;
+    optional param action_server_result_timeout: Second = 10.0;
+    optional param costmap_update_timeout: Second = 0.30;
+    optional param min_x_velocity_threshold: Natural = 0.0001;
+    optional param min_y_velocity_threshold: Natural = 0.0001;
+    optional param min_theta_velocity_threshold: Natural = 0.0001;
+    optional param failure_tolerance: double where {_ == -1.0 or _ >= 0} = 0.0;
+    #optional param enable_stamped_cmd_eval: bool = true; # THIS IS NO LONGER IN THE SOURCE CODE?
+
+    optional param goal_checker_plugins: Plugin[] = [default(SimpleGoalChecker)];
+    optional param controller_plugins: Plugin[] = [default(FollowPath)];
+    optional param progress_checker_plugins: Plugin[] = [default(SimpleGoalChecker)];
+
+    remaps /tf to tf;
+    remaps /tf_static to tf;
+
+    @qos{system_default_qos}
+    subscribes to odom : nav2_msgs/Odometry where {count(publishers(odom)) > 0};
+
+    @qos{param depth = 1;}
+    publishes to cmd_vel;
+
+    @qos{param depth = 10;}
+    subscribes to content(speed_limit_topic);
+
+    provides action follow_path;
+} where {
+	min_y_velocity_threshold < min_x_velocity_threshold;
+}
+
+plugin type FollowPath {
+    optional param plugin: str = "dwb_core::DWBLocalPlanner";
+	optional param critics: Plugin[] = [];
+    optional param default_critic_namespaces: string[] = [];
+    optional param prune_plan: bool = true;
+    optional param prune_distance: double = 2.0;
+    optional param forward_prune_distance: double = 2.0;
+    optional param debug_trajectory_details: bool = false;
+    optional param trajectory_generator_name: Plugin = default_StandardTrajectoryGenerator;
+    optional param transform_tolerance: double = 0.1;
+    optional param shorten_transformed_plan: bool = true;
+    optional param short_circuit_trajectory_evaluation: bool = true;
+}
+
+# Critics
+plugin type RotateToGoal {
+	optional param xy_goal_tolerance : Meter = 0.25;
+    optional param trans_stopped_velocity : RadianSecond = 0.25;
+    optional param slowing_factor : double = -1;
+    optional param scale: double = 1.0;
+}
+
+plugin type Oscillation {
+	optional param oscillation_reset_dist : Meter = 0.05;
+    optional param oscillation_reset_angle : Radian = 0.2;
+    optional param oscillation_reset_time : Second = -1;
+    optional param x_only_threshold : double = 0.05;
+}
+
+plugin type ObstacleFootprint {
+	optional param sum_scores : bool = false;
+    optional param scale : double = 1.0;
+}
+
+plugin type GoalAlign {
+	optional param forward_point_distance : Meter = 0.325;
+    optional param aggregation_type : Enum[Last, Sum, Product] = Last;
+    optional param scale: double = 1.0;
+}
+
+plugin type PathAlign {
+	optional param forward_point_distance : Meter = 0.325;
+    optional param aggregation_type : Enum[Last, Sum, Product] = Last;
+    optional param scale : double = 1.0;
+}
+
+plugin type PathDist {
+	optional param aggregation_type : Enum[Last, Sum, Product] = Last;
+    optional param scale: double = 1.0;
+}
+
+plugin type GoalDist {
+	optional param aggregation_type : Enum[Last, Sum, Product] = Last;
+    optional param scale: double = 1.0;
+}
+
+plugin type StandardTrajectoryGenerator {
+	optional param sim_period: double = 0.0;
+}
+
+plugin type SimpleGoalChecker {
+	optional param plugin: str = "nav2_controller::SimpleGoalChecker";
+	optional param xy_goal_tolerance: double = 0.25;
+    optional param yaw_goal_tolerance: double = 0.25;
+    optional param stateful: bool = true;
+}
+
+
+plugin type SimpleProgressChecker {
+	optional param plugin : str = "nav2_controller::SimpleProgressChecker";
+	optional param required_movement_radius: double = 0.5;
+    optional param movement_time_allowance: double = 10.0;
+}
+
+node type planner_server {
+	param planner_plugins: Plugin[] = [default_GridBased];
+    # param bond_hearbeat_period: Natural; # Not in the code
+
+    optional param action_server_result_timeout: Second = 10.0;
+    optional param expected_planner_frequency: Natural = 0.0;
+    optional param costmap_update_timeout: Second = 0.0;
+
+    @qos{param depth = 1;}
+    publishes to plan;
+
+    provides action compute_path_to_pose;
+    consumes action compute_path_through_poses;
+}
+
+node type map_server_type {
+	param yaml_filename: Filename;
+    optional param topic_name: Topic = map;
+    optional param frame_id: Frame = map;
+
+    @qos{map_server_topic_qos}
+    publishes to content(topic_name) : nav_msgs/OccupancyGrid;
+
+    provides service map_server/map;
+    provides service map_server/load_map : RestrictedLoadMap;
+}
+
+node type costmap_type {
+	optional param always_send_full_costmap: bool = false;
+    optional param map_vis_z: double = 0.0;
+    optional param footprint_padding: float = 0.01;
+    optional param footprint: string[] = [];
+    optional param global_frame: Frame = map;
+    optional param height: Natural = 5;
+    optional param width: Natural = 5;
+    optional param lethal_cost_threshold: Natural = 100;
+    optional param observation_sources: string = "";
+    optional param origin_x: double = 0.0;
+    optional param origin_y: double = 0.0;
+    optional param plugins: Plugin[] = [default_StaticLayer, default_ObstacleLayer, default_InflationLayer];
+    optional param filters: Plugin[] = [];
+    optional param publish_frequency: Natural = 1.0;
+    optional param resolution: Natural = 0.1;
+    optional param robot_base_frame: Frame = base_link;
+    optional param robot_radius: double = 0.1;
+    optional param rolling_window: bool = false;
+    optional param track_unknown_space: bool = false;
+    optional param transform_tolerance: double = 0.3;
+    optional param initial_transform_timeout: Natural = 60.0;
+    optional param trinary_costmap: bool = true;
+    optional param unknown_cost_value: double = 255;
+    optional param update_frequency: double = 5.0;
+    optional param use_maximum: bool = false;
+
+    @qos{default_qos}
+    subscribes to footprint: geometry_msgs/PolygonStamped where {count(publishers(_)) > 0};
+
+    @qos{default_qos}
+    publishes to published_footprint;
+
+    provides service get_cost_costmap; # : : nav2_msgs/GetCosts
+
+    # broadcast to costmap; # TODO: nav2_costmap_2d > src > costmap_2d_ros.cpp::222
+    broadcast global_frame to robot_base_frame;
+}
+
+node type local_costmap_type {
+    optional param update_frequency: Natural = 5.0;
+    optional param publish_frequency: Natural = 2.0;
+    optional param global_frame: string = "odom";
+    optional param robot_base_frame: string = "base_footprint";
+    optional param use_sim_time: boolean = true;
+    optional param rolling_window: boolean = true;
+    optional param width: Natural = 3.0;
+    optional param height: Natural = 3.0;
+    optional param resolution: Natural = 0.05;
+    optional param robot_radius: Natural = 0.4;
+    optional param footprint: string;
+    optional param plugins: Plugin[] = [default_VoxelLayer, default_InflationLayer];
+    optional param filters: Plugin[] = [default_KeepOutFilter];
+    optional param always_send_full_costmap: boolean = true;
+
+    @qos{system_default_qos}
+    subscribes to /scan;
+
+    @qos{transient_reliable_qos}
+    subscribes to /costmap_filter_info;
+}
+
+plugin type DenoiseLayer {
+    optional param enabled: bool = true;
+    optional param minimal_group_size: int = 2;
+    optional param group_connectivity_type: int where {_ == 4 or _ == 8} = 8;
+}
+
+plugin type InflationLayer {
+    param plugin: PluginNameType = "nav2_costmap_2d::InflationLayer";
+    param cost_scaling_factor: Natural = 3.0;
+    param inflation_radius: Natural = 0.55;
+}
+
+plugin type ObstacleLayer {
+	optional param enabled : bool = true;
+    optional param footprint_clearing_enabled: bool = true;
+    optional param min_obstacle_height: double = 0.0;
+    optional param max_obstacle_height: double = 2.0;
+    optional param combination_method: Enum[Overwrite, Max, MaxWithoutUnknownOverwrite] = Max;
+    optional param observation_sources: Plugin[] = [];
+    # TODO: check this later because these observation sources need to be defined, according to the documentation.
+
+    optional param track_unknown_space: bool = false;
+    optional param transform_tolerance: Natural = 0.0;
+
+    # subscribes to content(observation_sources); TODO: it is very confusing this part in the source code: nav2_costmap_2d > plugins > obstacle_layer.cpp
+} where {
+	min_obstacle_height < max_obstacle_height;
+}
+
+plugin type VoxelLayer {
+    optional param plugin: PluginNameType = "nav2_costmap_2d::VoxelLayer";
+    optional param enabled: boolean = true;
+    optional param publish_voxel_map: boolean = true;
+    optional param origin_z: double = 0.0;
+    optional param z_resolution: double = 0.05;
+    optional param z_voxels: int = 16;
+    optional param max_obstacle_height: Natural = 2.0;
+    optional param mark_threshold: int = 0;
+    optional param unknown_threshold: int = 15;
+    optional param combination_method: Enum[Overwrite, Max, MaxWithoutUnknownOverwrite] = Max;
+	optional param footprint_clearing_enabled: bool = true;
+
+    @qos{transient_reliable_qos}
+    publishes to voxel_grid;
+
+    @qos{transient_reliable_qos}
+    publishes to clearing_endpoints;
+}
+
+plugin type KeepOutFilter {
+   param plugin: PluginNameType = "nav2_costmap_2d::KeepoutFilter";
+   param filter_info_topic: Topic = /costmap_filter_info;
+   param enabled: boolean = true;
+
+    @qos{costmap_server_info_qos}
+    subscribes to content(filter_info_topic);
+}
+
+plugin type SpeedFilter {
+	param speed_limit_topic: Topic = speed_limit;
+    param filter_info_topic: Topic = /costmap_filter_info;
+
+    @qos{costmap_server_info_qos}
+    subscribes to content(filter_info_topic);
+
+    @qos{speed_limit_qos}
+    subscribes to content(speed_limit_topic);
+}
+
+system {
+
+    node instance amcl : amcl_type {
+		context distribution = Humble;
+
+        param robot_model_type = DifferentialMotionModel;
+        param scan_topic = scan;
+        param map_topic = map;
+        param max_particles = 8000;
+        param min_particles = 200;
+        param set_initial_pose = true;
+    }
+
+    node instance controller_server : controller_server_kilted {
+        context distribution = Humble;
+
+        param odom_topic = odom;
+
+        param controller_frequency = 5.0;
+        param min_theta_velocity_threshold = 0.001;
+        param failure_tolerance = 0.3;
+
+        param progress_checker_plugins = [default(SimpleProgressChecker)];
+        param goal_checker_plugins = [default(SimpleGoalChecker)];
+        param controller_plugins = [follow_path_checker];
+    }
+
+    plugin instance follow_path_checker : FollowPath {
+        param critics = [rotate_goal, default_Oscillation, default_ObstacleFootprint, goal_align, path_align, path_dist, goal_dist];
+        param debug_trajectory_details = true;
+        param transform_tolerance = 0.2;
+    }
+
+    plugin instance rotate_goal : RotateToGoal {
+        param scale = 32;
+    }
+
+    plugin instance goal_align : GoalAlign {
+        param forward_point_distance = 0.1;
+        param scale = 24.0;
+    }
+
+    plugin instance path_align : PathAlign {
+        param forward_point_distance = 0.1;
+        param scale = 32.0;
+    }
+
+    plugin instance path_dist : PathDist {
+        param scale = 32.0;
+    }
+
+    plugin instance goal_dist : GoalDist {
+        param scale = 24.0;
+    }
+
+    node instance map_server : map_server_type {
+        param yaml_filename = "map_server/maps/map.yaml";
+    }
+
+    node instance local_costmap : local_costmap_type {
+        param plugins = [voxel_layer, default_InflationLayer];
+        param filters = [default_KeepOutFilter];
+    }
+
+    plugin instance voxel_layer : VoxelLayer {
+        # TODO Observation sources
+    }
+}
+
